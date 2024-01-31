@@ -10,7 +10,9 @@
         "64": "icons/64.png",
         "128": "icons/128.png"
     },
-    "action": {},
+    "action": {
+        "default_popup": "popup.html"
+    },
     "permissions": [],
     "background": {}
 }
