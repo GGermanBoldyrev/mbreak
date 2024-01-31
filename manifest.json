@@ -1,0 +1,10 @@
+{
+    "name": "MBreak",
+    "description": "Get answers on tests",
+    "version": "1.0",
+    "manifest_version": 3,
+    "icons": {},
+    "action": {},
+    "permissions": [],
+    "background": {}
+}
