@@ -4,21 +4,41 @@
 
 const button = document.getElementById("conf-btn"); // Основная кнопка
 
-let asd = chrome.tabs.query(qObject, callback);
-
-// Меняет визуал кнопки на клик
+// Onclick
 button.addEventListener("click", function () {
-    // Если нажали включить
-    if (!toggle) {
-        this.className = "button-clicked";
-        button.textContent = "Выключить";
-        toggle = true;
-    } else {
-        this.classList.remove("button-clicked");
-        button.textContent = "Включить";
-        toggle = false;
-    }
+    onClick();
 });
+
+// Функция при включении расширения
+function onClick() {
+    chrome.tabs.query({ active: true }, (tabs) => {
+        const tab = tabs[0];
+        if (tab) {
+            cmid = getCmid(tab.url);
+            // Если cmid не найден
+            if (cmid === -1) {
+                alert("Параметр cmid в строке url не найден. Это точно тест?");
+                return;
+            }
+            // Получаем массив вопросов со страницы
+            qText = getQText();
+        } else {
+            alert("Активных вкладок не найдено.")
+        }
+    })
+}
+
+// Получаем код теста
+function getCmid(url) {
+    strToSearch = "cmid=";
+    // Если нет параметра cmid в строке url
+    if (url.search(strToSearch) === -1) {
+        return -1;
+    }
+    cmidPos = url.search(strToSearch) + strToSearch.length; // Получаем индекс начала строки и плюсуем str
+    cmid = url.substr(cmidPos, 6)
+    return cmid;
+}
 
 // Должна ловить элемент на котоырй нажали и кидать запрос на сервак
 function showAnswers() {

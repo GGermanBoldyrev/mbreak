@@ -38,5 +38,6 @@ button:hover {
 }
 
 .button-clicked {
-    background-color: red;
+    background-color: rgb(252, 57, 57);
+    color: rgb(255, 238, 206);
 }
