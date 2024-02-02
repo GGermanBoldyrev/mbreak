@@ -1,3 +1,42 @@
 body {
+    color: #455964;
+    background-color: #EDF5F9;
+    width: 200px;
+}
+
+h1 {
+    text-align: center;
+}
+
+p {
+    font-size: 15px;
+    width: 175px;
+}
+
+.button-block {
+    display: flex;
+    justify-content: center;
+}
+
+.text-block {
+    display: flex;
+    justify-content: center;
+}
+
+button {
+    font-size: 16px;
+    margin: 15px 0 10px 0;
+    background-color: #27cf7b;
+    padding: 7px 14px;
+    border: none;
+    border-radius: 3px;
+    align-items: center;
+}
+
+button:hover {
+    cursor: pointer;
+}
+
+.button-clicked {
     background-color: red;
 }
