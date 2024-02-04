@@ -14,9 +14,8 @@ function onClick() {
     // Получаем активную вкладку
     chrome.tabs.query({active: true}, (tabs) => {
         const tab = tabs[0];
-        let cmid;
         if (tab) {
-            cmid = getCmid(tab.url);
+            const cmid = getCmid(tab.url);
             // Если cmid не найден
             if (cmid === -1) {
                 alert("Параметр cmid в строке url не найден. Это точно тест?");
@@ -39,14 +38,14 @@ function onClick() {
 
 // Получаем код теста
 function getCmid(url) {
-    let strToSearch = "cmid=";
+    const strToSearch = "cmid=";
     // Если нет параметра cmid в строке url
     if (url.search(strToSearch) === -1) {
         return -1;
     }
 
     // Получаем индекс начала строки и плюсуем str
-    let cmidPos = url.search(strToSearch) + strToSearch.length;
+    const cmidPos = url.search(strToSearch) + strToSearch.length;
     return url.substring(cmidPos, 6);
 }
 
@@ -59,14 +58,11 @@ function grabQuestions() {
 }
 
 function onResult(frames) {
-    // TODO - Объединить списки URL-ов, полученных из каждого фрейма в один,
-    // затем объединить их в строку, разделенную символом перевода строки
-    // и скопировать в буфер обмена
+    // Проверяем пустое ли свойство объекта length
     if (!frames || !frames.length) {
         alert("Проблема с получением вопросов");
         return;
     }
-    frames.forEach(text => {
-        console.log(text)
-    });
+    // Делаем массив из вопросов
+    let questionsArr = frames.map(frame => frame.result).reduce((r1, r2) => r1.concat(r2))
 }

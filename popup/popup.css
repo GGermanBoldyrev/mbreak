@@ -37,6 +37,10 @@ button:hover {
     cursor: pointer;
 }
 
+button:active {
+    background-color: #22ad67;
+}
+
 .button-clicked {
     background-color: rgb(252, 57, 57);
     color: rgb(255, 238, 206);
