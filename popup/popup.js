@@ -2,7 +2,10 @@
 // chrome.scripting для внедрения кода JavaScript на web-страницу активной вкладки 
 // и для исполнения этого кода в контексте этой страницы.
 
-const button = document.getElementById("conf-btn"); // Основная кнопка
+// Основной URL для запроса
+const url = "https://moodle-breaker.kmsign.ru/getQuestionResult";
+// Кнопка запуска скрипта
+const button = document.getElementById("conf-btn");
 
 // Onclick
 button.addEventListener("click", function () {
@@ -64,5 +67,28 @@ function onResult(frames) {
         return;
     }
     // Делаем массив из вопросов
-    let questionsArr = frames.map(frame => frame.result).reduce((r1, r2) => r1.concat(r2))
+    let questionsArr = frames.map(frame => frame.result).reduce((r1, r2) => r1.concat(r2));
+    // Отправляем запрос на получение ответа на тест
+    try {
+        postData(url, {"test_id": 128611, "question_text": questionsArr[0]})
+            .then((data) => console.log(data));
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+// Функуция запроса
+const postData = async (url = '', data = {}) => {
+    // Формируем запрос
+    const response = await fetch(url, {
+        // Метод
+        method: 'POST',
+        // Заголвоки
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        // Данные
+        body: JSON.stringify(data)
+    });
+    return response.json();
 }
