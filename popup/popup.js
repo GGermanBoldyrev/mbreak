@@ -6,6 +6,8 @@
 const url = "https://moodle-breaker.kmsign.ru/getQuestionResult";
 // Кнопка запуска скрипта
 const button = document.getElementById("conf-btn");
+// Парамет cmid из url
+let cmid = 0;
 
 // Onclick
 button.addEventListener("click", function () {
@@ -18,7 +20,7 @@ function onClick() {
     chrome.tabs.query({active: true}, (tabs) => {
         const tab = tabs[0];
         if (tab) {
-            const cmid = getCmid(tab.url);
+            cmid = getCmid(tab.url);
             // Если cmid не найден
             if (cmid === -1) {
                 alert("Параметр cmid в строке url не найден. Это точно тест?");
@@ -46,10 +48,9 @@ function getCmid(url) {
     if (url.search(strToSearch) === -1) {
         return -1;
     }
-
     // Получаем индекс начала строки и плюсуем str
     const cmidPos = url.search(strToSearch) + strToSearch.length;
-    return url.substring(cmidPos, 6);
+    return url.substring(cmidPos, cmidPos + 6);
 }
 
 // Получаем все вопросы
@@ -69,7 +70,7 @@ function onResult(frames) {
     // Делаем массив из вопросов
     let questionsArr = frames.map(frame => frame.result).reduce((r1, r2) => r1.concat(r2));
     // Получаем ответы и выводим их
-    showAnswers(questionsArr);
+    let answers = getAnswers(questionsArr);
 }
 
 // Функуция запроса
@@ -89,20 +90,21 @@ const postData = async (url = '', data = {}) => {
 }
 
 // Функция для вывода ответов на тест
-function showAnswers(questions = []) {
+function getAnswers(questions = []) {
     // Массив ответов
     let answersArr = [];
     // Итерируемся по всем вопросам и отправляем запрос для получения ответа на сервер
     questions.forEach((question) => {
         try {
-            postData(url, {"test_id": 122112, "question_text": question}).then(result => {
+            postData(url, {"test_id": Number(cmid), "question_text": 's'}).then(result => {
                 // Ответ на вопрос
                 let answer = result["answers"];
                 // Если найден ответ на вопрос то пушим его в массив ответов
                 if (answer) {
-                    answersArr.push(answer)
+                    let res = answer[0]["text"].trim()
+                    answersArr.push(res);
                 } else { // Иначе ответ null
-                    answersArr.push("Результат ноль")
+                    answersArr.push("Ответ не найден");
                 }
             });
         } catch (error) {
@@ -110,4 +112,11 @@ function showAnswers(questions = []) {
         }
     })
     console.log(answersArr);
+    return answersArr;
 }
+
+// Функция для заполнения полей формы ответа
+/*
+function fillFields() {
+    //
+}*/
