@@ -68,13 +68,8 @@ function onResult(frames) {
     }
     // Делаем массив из вопросов
     let questionsArr = frames.map(frame => frame.result).reduce((r1, r2) => r1.concat(r2));
-    // Отправляем запрос на получение ответа на тест
-    try {
-        postData(url, {"test_id": 128611, "question_text": questionsArr[0]})
-            .then((data) => console.log(data));
-    } catch (err) {
-        console.log(err);
-    }
+    // Получаем ответы и выводим их
+    showAnswers(questionsArr);
 }
 
 // Функуция запроса
@@ -91,4 +86,28 @@ const postData = async (url = '', data = {}) => {
         body: JSON.stringify(data)
     });
     return response.json();
+}
+
+// Функция для вывода ответов на тест
+function showAnswers(questions = []) {
+    // Массив ответов
+    let answersArr = [];
+    // Итерируемся по всем вопросам и отправляем запрос для получения ответа на сервер
+    questions.forEach((question) => {
+        try {
+            postData(url, {"test_id": 122112, "question_text": question}).then(result => {
+                // Ответ на вопрос
+                let answer = result["answers"];
+                // Если найден ответ на вопрос то пушим его в массив ответов
+                if (answer) {
+                    answersArr.push(answer)
+                } else { // Иначе ответ null
+                    answersArr.push("Результат ноль")
+                }
+            });
+        } catch (error) {
+            console.log("Ошибка при обращении к серверу: ", error);
+        }
+    })
+    console.log(answersArr);
 }

@@ -1,16 +1,17 @@
 body {
     color: #455964;
     background-color: #e3edf1;
-    width: 200px;
+    width: 225px;
 }
 
 h1 {
     text-align: center;
 }
 
-p {
-    font-size: 15px;
-    width: 175px;
+.text-block p {
+    margin: 5px 0;
+    font-size: 14px;
+    width: 200px;
 }
 
 .button-block {
@@ -21,6 +22,8 @@ p {
 .text-block {
     display: flex;
     justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
 
 button {
@@ -44,4 +47,14 @@ button:active {
 .button-clicked {
     background-color: rgb(252, 57, 57);
     color: rgb(255, 238, 206);
+}
+
+.red-text {
+    font-weight: bold;
+    color: red;
+}
+
+.green-text {
+    font-weight: bold;
+    color: green;
 }
