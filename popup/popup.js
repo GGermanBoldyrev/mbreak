@@ -72,10 +72,11 @@ async function onResult(frames) {
     // Массив из вопросов
     const questionsArr = frames.map(frame => frame.result).reduce((r1, r2) => r1.concat(r2));
     // Получаем ответы на вопросы
-    const answers = await getAnswers(questionsArr)
+    const answers = await getAnswers(questionsArr);
     // Запускаем в активной вкладке функцию, которая выделяет
     // правильные ответы и вопросы на которые ответа нет
     await injectHighlightAnswers(answers);
+    // Выводим текст, что ответы успешно получены
     success();
 }
 
@@ -105,11 +106,11 @@ async function getAnswers(questions = []) {
         answersArr.push(
             await postData(url, {"test_id": Number(cmid), "question_text": question})
                 .then(result => {
-                    if (result["answers"]) {
-                        const answer = result["answers"][0]["text"].trim()
-                        return {"question": question, "answer": answer};
+                    if (result["answers"] === null) {
+                        return [question, null];
                     } else {
-                        return {"question": question, "answer": null};
+                        let answer = result["answers"][0]["text"].trim()
+                        return [question, answer]
                     }
                 }))
     }
@@ -134,14 +135,17 @@ function highlightAnswers(answers) {
     return "Скрипт по подсветке правильных ответов отработал успешно!";
 }
 
-// Preloader
+// div элемент preloader
 let preloaderEl = document.getElementById('preloader');
+
+// Функция для показа preloader
 function preloaderVisible() {
     preloaderEl.classList.remove('hidden');
     preloaderEl.classList.add('visible');
     preloaderEl.innerText = "Идет загрузка...";
 }
 
+// Фукнция для показа текста ответы получены, вместо preloader
 function success() {
     preloaderEl.classList.remove("red-text");
     preloaderEl.classList.add("green-text");
