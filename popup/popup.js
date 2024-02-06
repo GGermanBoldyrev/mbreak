@@ -61,7 +61,7 @@ function grabQuestions() {
     return Array.from(questions).map(question => question.outerText);
 }
 
-function onResult(frames) {
+async function onResult(frames) {
     // Проверяем пустое ли свойство объекта length
     if (!frames || !frames.length) {
         alert("Проблема с получением вопросов");
@@ -69,9 +69,12 @@ function onResult(frames) {
     }
     // Массив из вопросов
     const questionsArr = frames.map(frame => frame.result).reduce((r1, r2) => r1.concat(r2));
-    // Ответы на вопросы
-    const answers = getAnswers(questionsArr);
-    // TODO: сделать заполнение ответов
+    // Получаем ответы на вопросы
+    const answers = await getAnswers(questionsArr)
+
+    // Запускаем в активной вкладке функцию, которая выделяет
+    // правильные ответы и вопросы на которые ответа нет
+    injectHighlightAnswers(answers);
 }
 
 // Функуция запроса
@@ -92,34 +95,39 @@ const postData = async (url = '', data = {}) => {
 }
 
 // Функция для получения массива ответов
-function getAnswers(questions = []) {
+async function getAnswers(questions = []) {
     // Массив ответов
     let answersArr = [];
     // Итерируемся по всем вопросам и отправляем запрос для получения ответа на сервер
-    questions.forEach((question) => {
-        try {
-            postData(url, {"test_id": Number(cmid), "question_text": question}).then(result => {
-                // Ответ на вопрос
-                const answer = result["answers"];
-                // Заполняем массив ответов полученными данными
-                if (answer) {
-                    // Текст ответа на вопрос
-                    const res = answer[0]["text"].trim()
-                    answersArr.push({"question:": question, "answer": res});
-                } else {
-                    answersArr.push({"question": question, "answer": "Ответ не найден"});
-                }
-            });
-        } catch (error) {
-            console.log("Ошибка при обращении к серверу: ", error);
-        }
-    })
-    // Возвращаем массив ответов в формате {"вопрос": ответ}
+    for (const question of questions) {
+        answersArr.push(
+            await postData(url, {"test_id": Number(cmid), "question_text": question})
+                .then(result => {
+                    if (result["answers"]) {
+                        const answer = result["answers"][0]["text"].trim()
+                        return {"question": question, "answer": answer};
+                    } else {
+                        return {"question": question, "answer": null};
+                    }
+                }))
+    }
     return answersArr;
 }
 
-// TODO: Функция для заполнения полей формы ответа
-/*
-function fillFields() {
-    //
-}*/
+// Функция для выделения нужных ответов и вопросов на которые ответа нет
+function injectHighlightAnswers(answers) {
+    chrome.tabs.query({active: true}, (tabs) => {
+        const tab = tabs[0];
+        chrome.scripting.executeScript(
+            {
+                target: {tabId: tab.id},
+                func: highlightAnswers,
+                args: [answers]
+            }).then(response => console.log(response))
+    });
+}
+
+function highlightAnswers(answers) {
+    console.log(answers)
+    return "Скрипт по подсветке правильных ответов отработал успешно!";
+}
