@@ -89,29 +89,28 @@ const postData = async (url = '', data = {}) => {
     return response.json();
 }
 
-// Функция для вывода ответов на тест
+// Функция для получения массива ответов
 function getAnswers(questions = []) {
     // Массив ответов
     let answersArr = [];
     // Итерируемся по всем вопросам и отправляем запрос для получения ответа на сервер
     questions.forEach((question) => {
         try {
-            postData(url, {"test_id": Number(cmid), "question_text": 's'}).then(result => {
+            postData(url, {"test_id": Number(cmid), "question_text": question}).then(result => {
                 // Ответ на вопрос
                 let answer = result["answers"];
-                // Если найден ответ на вопрос то пушим его в массив ответов
+                // Заполняем массив ответов полученными данными
                 if (answer) {
                     let res = answer[0]["text"].trim()
-                    answersArr.push(res);
-                } else { // Иначе ответ null
-                    answersArr.push("Ответ не найден");
+                    answersArr.push({"question:": question, "answer": res});
+                } else {
+                    answersArr.push({"question": question, "answer": "Ответ не найден"});
                 }
             });
         } catch (error) {
             console.log("Ошибка при обращении к серверу: ", error);
         }
     })
-    console.log(answersArr);
     return answersArr;
 }
 
