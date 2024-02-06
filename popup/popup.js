@@ -62,6 +62,8 @@ function grabQuestions() {
 }
 
 async function onResult(frames) {
+    // Запускаем preloader
+    preloaderVisible();
     // Проверяем пустое ли свойство объекта length
     if (!frames || !frames.length) {
         alert("Проблема с получением вопросов");
@@ -71,10 +73,10 @@ async function onResult(frames) {
     const questionsArr = frames.map(frame => frame.result).reduce((r1, r2) => r1.concat(r2));
     // Получаем ответы на вопросы
     const answers = await getAnswers(questionsArr)
-
     // Запускаем в активной вкладке функцию, которая выделяет
     // правильные ответы и вопросы на которые ответа нет
-    injectHighlightAnswers(answers);
+    await injectHighlightAnswers(answers);
+    success();
 }
 
 // Функуция запроса
@@ -130,4 +132,18 @@ function injectHighlightAnswers(answers) {
 function highlightAnswers(answers) {
     console.log(answers)
     return "Скрипт по подсветке правильных ответов отработал успешно!";
+}
+
+// Preloader
+let preloaderEl = document.getElementById('preloader');
+function preloaderVisible() {
+    preloaderEl.classList.remove('hidden');
+    preloaderEl.classList.add('visible');
+    preloaderEl.innerText = "Идет загрузка...";
+}
+
+function success() {
+    preloaderEl.classList.remove("red-text");
+    preloaderEl.classList.add("green-text");
+    preloaderEl.textContent = "Ответы получены";
 }
