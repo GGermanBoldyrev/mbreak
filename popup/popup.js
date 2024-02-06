@@ -2,19 +2,19 @@
 // chrome.scripting для внедрения кода JavaScript на web-страницу активной вкладки 
 // и для исполнения этого кода в контексте этой страницы.
 
-// Основной URL для запроса
+// URL для получения ответов
 const url = "https://moodle-breaker.kmsign.ru/getQuestionResult";
-// Кнопка запуска скрипта
+// Основная кнопка (запуска скрипта)
 const button = document.getElementById("conf-btn");
-// Парамет cmid из url
+// Парамет cmid из URL страницы (переназначаем функцией getCmid(url))
 let cmid = 0;
 
-// Onclick
+// Onclick по основной кнопке
 button.addEventListener("click", function () {
     onClick();
 });
 
-// Функция при включении расширения
+// Функция которая вызывается на клик по оснвоной кнопке
 function onClick() {
     // Получаем активную вкладку
     chrome.tabs.query({active: true}, (tabs) => {
@@ -41,7 +41,7 @@ function onClick() {
     });
 }
 
-// Получаем код теста
+// Функция для получения кода теста
 function getCmid(url) {
     const strToSearch = "cmid=";
     // Если нет параметра cmid в строке url
@@ -53,11 +53,11 @@ function getCmid(url) {
     return url.substring(cmidPos, cmidPos + 6);
 }
 
-// Получаем все вопросы
+// Функция для получения всех вопросов
 function grabQuestions() {
-    //Запросить список div-ов "qtext"
-    // и вернуть их список
+    // Все вопросы со страницы
     const questions = document.querySelectorAll(".qtext");
+    // Возвращаем массив вопросов
     return Array.from(questions).map(question => question.outerText);
 }
 
@@ -67,15 +67,16 @@ function onResult(frames) {
         alert("Проблема с получением вопросов");
         return;
     }
-    // Делаем массив из вопросов
-    let questionsArr = frames.map(frame => frame.result).reduce((r1, r2) => r1.concat(r2));
-    // Получаем ответы и выводим их
-    let answers = getAnswers(questionsArr);
+    // Массив из вопросов
+    const questionsArr = frames.map(frame => frame.result).reduce((r1, r2) => r1.concat(r2));
+    // Ответы на вопросы
+    const answers = getAnswers(questionsArr);
+    // TODO: сделать заполнение ответов
 }
 
 // Функуция запроса
 const postData = async (url = '', data = {}) => {
-    // Формируем запрос
+    // POST запрос
     const response = await fetch(url, {
         // Метод
         method: 'POST',
@@ -86,6 +87,7 @@ const postData = async (url = '', data = {}) => {
         // Данные
         body: JSON.stringify(data)
     });
+    // Возвращаем ответ в формате json
     return response.json();
 }
 
@@ -98,10 +100,11 @@ function getAnswers(questions = []) {
         try {
             postData(url, {"test_id": Number(cmid), "question_text": question}).then(result => {
                 // Ответ на вопрос
-                let answer = result["answers"];
+                const answer = result["answers"];
                 // Заполняем массив ответов полученными данными
                 if (answer) {
-                    let res = answer[0]["text"].trim()
+                    // Текст ответа на вопрос
+                    const res = answer[0]["text"].trim()
                     answersArr.push({"question:": question, "answer": res});
                 } else {
                     answersArr.push({"question": question, "answer": "Ответ не найден"});
@@ -111,10 +114,11 @@ function getAnswers(questions = []) {
             console.log("Ошибка при обращении к серверу: ", error);
         }
     })
+    // Возвращаем массив ответов в формате {"вопрос": ответ}
     return answersArr;
 }
 
-// Функция для заполнения полей формы ответа
+// TODO: Функция для заполнения полей формы ответа
 /*
 function fillFields() {
     //
