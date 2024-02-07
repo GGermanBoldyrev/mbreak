@@ -130,8 +130,17 @@ function injectHighlightAnswers(answers) {
     });
 }
 
+// Функция для подсветки правильных ответов
 function highlightAnswers(answers) {
-    console.log(answers)
+    // Получаем все вопросы
+    const questions = grabQuestions();
+    // Итерируемся по всем вопросам
+    for (let i = 0; i < questions.length; i++) {
+        // выбираем вопрос // красим его в зеленый или красный
+        // красим нужный ответ в зеленый если он не нулл
+        console.log(i);
+    }
+    // Отписка)
     return "Скрипт по подсветке правильных ответов отработал успешно!";
 }
 
