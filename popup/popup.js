@@ -2,7 +2,7 @@
 // chrome.scripting для внедрения кода JavaScript на web-страницу активной вкладки 
 // и для исполнения этого кода в контексте этой страницы.
 
-// TODO: закрывать расширение после 2х секунд после плучения ответа
+// TODO: Выводить еще ответы в отдельное окно????
 
 // URL для получения ответов
 const url = "https://moodle-breaker.kmsign.ru/getQuestionResult";
@@ -74,7 +74,6 @@ async function onResult(frames) {
     let questionsArr = frames.map(frame => frame.result).reduce((r1, r2) => r1.concat(r2));
     // Вырезаем ненужные символы и новые строки (если есть)
     prepareQuestions(questionsArr);
-    console.log(questionsArr)
     // Получаем ответы на вопросы
     const answers = await getAnswers(questionsArr);
     console.log(answers)
@@ -111,11 +110,19 @@ async function getAnswers(questions = []) {
         answersArr.push(
             await postData(url, {"test_id": Number(cmid), "question_text": question})
                 .then(result => {
+                    // Если пустой ответ
                     if (result["answers"] === null) {
                         return [question, null];
                     }
-                    // TODO: проверить если массив ответов больше 1 то надо вернуть массив ответов
+                    // Если ответ найден то помещаем его в переменную
                     let answer = result["answers"][0]["text"].trim()
+                    // Если ответ приходит в виде объекта
+                    if (answer.charAt(0) === '{' && answer.charAt(answer.length - 1) === '}') {
+                        // Тогда ответ будет массивом массивов
+                        answer = Object.entries(JSON.parse(answer));
+                        return [question, answer];
+                    }
+                    // Если просто пришел ответ
                     return [question, answer]
                 }))
     }
@@ -141,8 +148,8 @@ function highlightAnswers(answers) {
     const questions = grabQuestions();
     // Итерируемся по всем вопросам
     for (let i = 0; i < questions.length; i++) {
-        // выбираем вопрос // красим его в зеленый или красный
-        // красим нужный ответ в зеленый если он не нулл
+        // TODO выбираем вопрос // красим его в зеленый или красный
+        // TODO красим нужный ответ в зеленый если он не нулл
         console.log(i);
     }
     // Отписка)
