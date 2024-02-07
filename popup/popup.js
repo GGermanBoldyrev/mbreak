@@ -2,6 +2,8 @@
 // chrome.scripting для внедрения кода JavaScript на web-страницу активной вкладки 
 // и для исполнения этого кода в контексте этой страницы.
 
+// TODO: закрывать расширение после 2х секунд после плучения ответа
+
 // URL для получения ответов
 const url = "https://moodle-breaker.kmsign.ru/getQuestionResult";
 // Основная кнопка (запуска скрипта)
@@ -37,7 +39,6 @@ function onClick() {
         } else {
             alert("Активных вкладок не найдено.")
         }
-
     });
 }
 
@@ -70,9 +71,13 @@ async function onResult(frames) {
         return;
     }
     // Массив из вопросов
-    const questionsArr = frames.map(frame => frame.result).reduce((r1, r2) => r1.concat(r2));
+    let questionsArr = frames.map(frame => frame.result).reduce((r1, r2) => r1.concat(r2));
+    // Вырезаем ненужные символы и новые строки (если есть)
+    prepareQuestions(questionsArr);
+    console.log(questionsArr)
     // Получаем ответы на вопросы
     const answers = await getAnswers(questionsArr);
+    console.log(answers)
     // Запускаем в активной вкладке функцию, которая выделяет
     // правильные ответы и вопросы на которые ответа нет
     await injectHighlightAnswers(answers);
@@ -108,10 +113,10 @@ async function getAnswers(questions = []) {
                 .then(result => {
                     if (result["answers"] === null) {
                         return [question, null];
-                    } else {
-                        let answer = result["answers"][0]["text"].trim()
-                        return [question, answer]
                     }
+                    // TODO: проверить если массив ответов больше 1 то надо вернуть массив ответов
+                    let answer = result["answers"][0]["text"].trim()
+                    return [question, answer]
                 }))
     }
     return answersArr;
@@ -142,6 +147,21 @@ function highlightAnswers(answers) {
     }
     // Отписка)
     return "Скрипт по подсветке правильных ответов отработал успешно!";
+}
+
+// Функция для подготовки ответов
+function prepareQuestions(questions) {
+    // Ищем переносы строки
+    const elemToSearch = '\n';
+    // Итерируемся по воросам
+    for (let i = 0; i < questions.length; i++) {
+        // Ищем последний \n в вопросе
+        const newLineIndex = questions[i].lastIndexOf(elemToSearch);
+        if (newLineIndex !== -1) {
+            // Обрезаем последний параграф в вопросе
+            questions[i] = questions[i].substring(newLineIndex + elemToSearch.length);
+        }
+    }
 }
 
 // div элемент preloader
