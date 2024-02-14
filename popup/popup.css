@@ -4,6 +4,10 @@ body {
     width: 225px;
 }
 
+i {
+    font-weight: bold;
+}
+
 h1 {
     text-align: center;
 }
@@ -50,11 +54,7 @@ button:active {
 }
 
 .red-text {
-    color: red;
-}
-
-.green-text {
-    color: green;
+    color: #cf2749;
 }
 
 /* Лоадер и текст об успехе */

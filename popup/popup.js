@@ -2,7 +2,6 @@
 // Chrome.scripting для внедрения кода JavaScript на web-страницу активной вкладки
 // и для исполнения этого кода в контексте этой страницы.
 
-// TODO: Выводить еще ответы в отдельное окно????
 // URL для получения ответов
 const url = "https://moodle-breaker.kmsign.ru/getQuestionResult";
 // Основная кнопка (запуска скрипта)
@@ -67,13 +66,10 @@ async function onResult(frames) {
     }
     // Массив из вопросов
     let questionsArr = frames.map(frame => frame.result).reduce((r1, r2) => r1.concat(r2));
-    // Вырезаем ненужные символы и новые строки (если есть)
-    // prepareQuestions(questionsArr);
     // Получаем ответы на вопросы
     const answers = await getAnswers(questionsArr);
-    console.log(answers)
     // Запускаем в активной вкладке функцию, которая показывает юзеру ответы
-    await injectHighlightAnswers(answers);
+    injectHighlightAnswers(answers);
     // Выводим текст, что ответы успешно получены
     success();
 }
@@ -142,35 +138,33 @@ function highlightAnswers(answers) {
                 // Если ответ не найден (null)
                 if (answer[1] === null) {
                     // Мы красим вопрос в красный цвет
+                    question.style.backgroundColor = "rgba(229,27,69,0.45)";
+                } else {
+                    // Если ответ найден, то красим вопрос в зеленый
+                    question.style.backgroundColor = "#27cf7b";
+                    // Если ответ - массив, то мы не красим ответ, а выводим его рядом
+                    if (Array.isArray(answer[1])) {
+                        // TODO: Вывести массив ответов рядом с вопросом
+                        console.log(answer)
+                    } else { // Если ответ не массив, то просто красим правильный ответ в зеленый.
+                        // Получаем лист блоков с ответами к конкретному вопросу
+                        const answerBlock = question.parentNode.querySelector(".answer");
+                        // Итерируемся блокам с ответами
+                        for (const answerEl of answerBlock.children) {
+                            // Если блок с ответом содержит подстроку с полученным ответом
+                            if (answerEl.outerText.includes(answer[1])) {
+                                // Делаем шрифт курсивом, потому что нельзя поменять цвет (почему-то)
+                                answerEl.style.fontStyle = "italic";
+                            }
+                        }
+                    }
                 }
-                // Если ответ найден, то красим его в зеленый
-                // TODO: color green
-                // Если ответ - массив, то мы не красим ответ, а выводим его рядом
-                if (Array.isArray(answer[1])) {
-                    // TODO: Вывести массив ответов рядом с вопросом
-                }
-                // TODO: покрасить правильный ответ в зеленый цыет
             }
-        })
-    })
+        });
+    });
     // Прописываем текст в лог активной вкладки
     return "Скрипт по подсветке правильных ответов отработал успешно!";
 }
-
-// Функция для подготовки ответов
-/*function prepareQuestions(questions) {
-    // Ищем переносы строки
-    const elemToSearch = '\n';
-    // Итерируемся по вопросам
-    for (let i = 0; i < questions.length; i++) {
-        // Ищем последний \n в вопросе
-        const newLineIndex = questions[i].lastIndexOf(elemToSearch);
-        if (newLineIndex !== -1) {
-            // Обрезаем последний параграф в вопросе
-            questions[i] = questions[i].substring(newLineIndex + elemToSearch.length);
-        }
-    }
-}*/
 
 // div элемент preloader
 let preloaderEl = document.getElementById('preloader');
