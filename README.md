@@ -8,6 +8,6 @@
 
 #### 4. Затем откройте тест (для начала попробуйте в уже пройденном) и нажмите "Показать ответы"
 
-### Если я Вам помог, можете поддержать. https://www.donationalerts.com/r/ggermanbboldyrev
+#### Если я Вам помог, можете меня поддержать. https://www.donationalerts.com/r/ggermanbboldyrev
 
-### Обратная связь. https://t.me/ggerman_boldyrev
+#### Обратная связь. https://t.me/ggerman_boldyrev
